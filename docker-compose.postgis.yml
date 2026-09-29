@@ -1,0 +1,20 @@
+services:
+  postgis:
+    image: postgis/postgis:16-3.5
+    container_name: oiltrace-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: oiltrace
+      POSTGRES_USER: oiltrace
+      POSTGRES_PASSWORD: oiltrace
+    ports:
+      - "5432:5432"
+    volumes:
+      - oiltrace_postgis:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oiltrace -d oiltrace"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  oiltrace_postgis:

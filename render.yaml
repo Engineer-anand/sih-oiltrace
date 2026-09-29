@@ -1,0 +1,73 @@
+services:
+  - type: web
+    name: oiltrace-api
+    runtime: docker
+    plan: 1c-2g
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oiltrace-db
+          property: connectionString
+      - key: CMEMS_USERNAME
+        sync: false
+      - key: CMEMS_PASSWORD
+        sync: false
+      - key: CDSAPI_URL
+        value: https://cds.climate.copernicus.eu/api
+      - key: CDSAPI_KEY
+        sync: false
+      - key: GFW_API_TOKEN
+        sync: false
+      - key: AWS_SENTINEL1_STAC_URL
+        value: https://earth-search.aws.element84.com/v1
+      - key: AWS_SENTINEL1_COLLECTION
+        value: sentinel-1-grd
+      - key: AWS_SENTINEL1_BUCKET
+        value: sentinel-s1-l1c
+      - key: AWS_SENTINEL1_REGION
+        value: eu-central-1
+      - key: APP_MODE
+        value: staging
+      - key: OILTRACE_API_KEY
+        sync: false
+      - key: ALLOW_LIVE_FALLBACK
+        value: "false"
+      - key: REALTIME_DATA_ONLY
+        value: "true"
+      - key: REQUIRE_REAL_MODEL
+        value: "true"
+      - key: FAST_PROTOTYPE_MODE
+        value: "true"
+      - key: PIPELINE_TARGET_SECONDS
+        value: "30"
+      - key: DEFAULT_LOOKBACK_HOURS
+        value: "24"
+      - key: DRIFT_PARTICLES
+        value: "80"
+      - key: DRIFT_OUTPUT_INTERVAL_HOURS
+        value: "1"
+      - key: DRIFT_ENV_PAD_DEG
+        value: "0.75"
+      - key: INFERENCE_MAX_PIXELS
+        value: "2000000"
+      - key: INFERENCE_TILE_SIZE
+        value: "256"
+      - key: INFERENCE_TILE_OVERLAP
+        value: "32"
+      - key: MAX_UPLOAD_BYTES
+        value: "1073741824"
+      - key: CORS_ORIGINS
+        sync: false
+
+databases:
+  - name: oiltrace-db
+    plan: 0.5c-1g
+    region: frankfurt
+    postgresMajorVersion: "16"
+    databaseName: oiltrace
+    user: oiltrace

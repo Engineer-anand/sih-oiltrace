@@ -1,0 +1,11 @@
+# OilTrace — LIVE PHYSICS dependencies.
+# Install this in addition to requirements-core.txt to enable real backward
+# drift simulation against CMEMS currents + ERA5 wind (Brain 2). Without
+# this, the /pipeline/* endpoints will return a clear OPENDRIFT_MISSING
+# dependency error instead of silently guessing — see app/services/drift.py.
+
+opendrift==1.14.12
+copernicusmarine==2.4.1
+cdsapi==0.7.5
+xarray==2026.7.0
+netCDF4==1.7.4

@@ -1,0 +1,68 @@
+# ============================================================
+# OilTrace — FREE-TIER DEMO image (Render free / Koyeb / HF Spaces)
+#
+# Designed for 512 MB RAM and 0.1 CPU:
+#   * CPU-only torch wheel (no ~800 MB CUDA payload)
+#   * no apt layer at all — rasterio/shapely/pyproj use manylinux wheels
+#   * single-threaded BLAS + capped malloc arenas to cut RSS
+#   * single uvicorn process (no --workers) so one model copy is resident
+#   * long HEALTHCHECK start-period for slow cold starts
+#
+# The production image remains ./Dockerfile (full live-physics stack).
+# ============================================================
+
+# ---------- Frontend build ----------
+FROM node:22-alpine AS frontend-build
+WORKDIR /src/frontend
+COPY frontend/package*.json ./
+RUN npm install --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build
+
+# ---------- Backend runtime ----------
+FROM python:3.11-slim
+
+# Memory/CPU discipline for shared free-tier CPUs. MALLOC_ARENA_MAX in
+# particular stops glibc from holding on to many per-thread arenas, which
+# is a real RSS win when PyTorch allocates in bursts.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    OMP_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    NUMEXPR_NUM_THREADS=1 \
+    MALLOC_ARENA_MAX=2
+
+WORKDIR /app
+
+# CPU-only torch first, so the CUDA wheel is never considered.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+
+COPY backend/requirements-demo.txt ./
+RUN pip install --no-cache-dir -r requirements-demo.txt
+
+COPY backend/app ./backend/app
+COPY models ./models
+COPY --from=frontend-build /src/frontend/dist ./frontend/dist
+
+# Non-root, with a real passwd entry so $HOME resolves to a writable directory
+# (matching the production Dockerfile). A bare numeric UID would leave HOME
+# unset for any library that probes it. Runtime data is created at container
+# start and is never baked into the image.
+RUN useradd -m -u 10001 oiltrace \
+    && mkdir -p /app/data \
+    && chown -R oiltrace:oiltrace /app
+USER oiltrace
+
+ENV PORT=8000
+EXPOSE 8000
+
+# start-period is generous because the first inference-model load on a
+# 0.1 vCPU instance is slow; failing the health check here would fail the
+# whole deploy.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=240s --retries=5 \
+  CMD python -c "import urllib.request,os; urllib.request.urlopen('http://127.0.0.1:'+os.environ.get('PORT','8000')+'/health', timeout=8)"
+
+# Single process by design: one resident model copy fits in 512 MB.
+CMD ["sh", "-c", "python -m uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port ${PORT:-8000}"]

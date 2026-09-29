@@ -1,0 +1,49 @@
+**/__pycache__
+**/*.pyc
+**/node_modules
+.env*
+!.env*.example
+!.env*.sample
+*.pem
+*.key
+*.pfx
+*.p12
+*.secret
+*.secrets
+secrets.json
+credentials.json
+credential*.json
+client_secret*.json
+service_account*.json
+service-account*.json
+firebase-adminsdk*.json
+auth.json
+token.json
+tokens.json
+.cdsapirc
+.copernicusmarine*
+.aws/
+.gcp/
+.azure/
+.git
+.gitignore
+frontend/dist
+data/
+backend/data/
+*.db
+*.db-journal
+*.sqlite
+*.pt
+*.pth
+*.onnx
+# ...but the pinned demo checkpoint MUST stay in the build context. The
+# Dockerfile does `COPY models ./models`; if these were ever excluded the
+# container would boot with no weights and every detection would fail with
+# a model-unavailable error. Negations make that intent explicit and immune
+# to someone later "tidying" the ignore rules above.
+!models/checkpoints/unet_oilspill.pt
+!models/manifests/MODEL_VERSION.json
+data/ocean_cache/*
+data/uploads/*
+data/sentinel1/*
+*.zip

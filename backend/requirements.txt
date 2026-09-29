@@ -1,0 +1,10 @@
+# OilTrace — full pipeline dependencies (Milestones 1-6).
+# This file installs EVERYTHING (core + live physics + reporting) and is
+# what Docker/Render use for a complete, reproducible production image.
+#
+# For a fast local first run without the heavy CMEMS/ERA5/OpenDrift stack,
+# install requirements-core.txt only, then add requirements-live.txt when
+# you're ready to enable real drift simulation.
+-r requirements-core.txt
+-r requirements-live.txt
+-r requirements-report.txt

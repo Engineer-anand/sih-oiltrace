@@ -1,0 +1,4 @@
+# OilTrace test-only dependencies (M16). Not required to run the app.
+-r requirements-core.txt
+-r requirements-report.txt
+pytest==8.3.4

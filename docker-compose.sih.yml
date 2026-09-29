@@ -1,0 +1,11 @@
+# SIH demo profile: same stack as docker-compose.yml, but APP_MODE=sih_demo
+# (scenario drift + scenario fleet, deterministic seeds, SCENARIO data_mode).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.sih.yml up -d
+#
+# Then open http://localhost:8000/app/dashboard
+services:
+  app:
+    environment:
+      APP_MODE: sih_demo
+      ALLOW_LIVE_FALLBACK: "false"

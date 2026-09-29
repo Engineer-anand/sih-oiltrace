@@ -1,0 +1,120 @@
+# OilTrace — Render Blueprint for the FREE demo deployment.
+#
+# Use this file by setting Blueprint Path = render.demo.yaml in Render, or
+# simply create the service by hand in the dashboard and copy the envVars
+# table below. render.yaml is left untouched on purpose: it documents the
+# production/staging topology (Postgres + provider credentials) and is the
+# file the test suite asserts against.
+#
+# Deliberate choices for free tier:
+#   * runtime: docker + Dockerfile.demo -> slim, CPU-only torch, no OpenDrift
+#   * plan: free                        -> 512 MB / 0.1 CPU
+#   * NO databases: block               -> SQLite instead; Render's free
+#                                          Postgres expires after 30 days
+#   * NO disk: block                    -> free instances have no persistent
+#                                          disk; the demo DB is regenerated
+#                                          deterministically on restart
+#   * APP_MODE=sih_demo + empty credentials -> boots with no paid provider
+#   * OILTRACE_API_KEY empty            -> judges can use it with no key
+
+services:
+  - type: web
+    name: oiltrace-demo
+    runtime: docker
+    plan: free
+    # Singapore is the lowest-latency Render region for India.
+    region: singapore
+    dockerfilePath: ./Dockerfile.demo
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      # ---- mode + storage ----
+      - key: APP_MODE
+        value: sih_demo
+      - key: DATABASE_URL
+        value: sqlite:////app/data/oiltrace_demo.db
+      - key: CORS_ORIGINS
+        value: https://oiltrace-demo.onrender.com
+      - key: OILTRACE_API_KEY
+        value: ""
+
+      # ---- providers intentionally unset (demo needs none) ----
+      - key: ALLOW_LIVE_FALLBACK
+        value: "false"
+      - key: REALTIME_DATA_ONLY
+        value: "true"
+      - key: REQUIRE_REAL_MODEL
+        value: "true"
+
+      # ---- public Sentinel-1 archive (no credentials) ----
+      - key: AWS_SENTINEL1_STAC_URL
+        value: https://earth-search.aws.element84.com/v1
+      - key: AWS_SENTINEL1_COLLECTION
+        value: sentinel-1-grd
+      - key: AWS_SENTINEL1_BUCKET
+        value: sentinel-s1-l1c
+      - key: AWS_SENTINEL1_REGION
+        value: eu-central-1
+      - key: SSRF_ALLOWED_HOSTS
+        value: earth-search.aws.element84.com,sentinel-s1-l1c.s3.eu-central-1.amazonaws.com
+
+      # ---- free-tier resource limits ----
+      - key: INFERENCE_MAX_PIXELS
+        value: "400000"
+      - key: INFERENCE_TILE_SIZE
+        value: "256"
+      - key: INFERENCE_TILE_OVERLAP
+        value: "16"
+      - key: INFERENCE_TILE_BATCH
+        value: "4"
+      - key: TORCHSCRIPT_TRACE
+        value: "false"
+      - key: TORCH_NUM_THREADS
+        value: "1"
+      - key: MODEL_PRELOAD
+        value: "true"
+      - key: MAX_UPLOAD_BYTES
+        value: "67108864"
+      - key: WORKER_CONCURRENCY
+        value: "1"
+
+      # ---- deterministic demo pipeline ----
+      - key: DRIFT_SEED
+        value: "20260905"
+      - key: DEFAULT_LOOKBACK_HOURS
+        value: "12"
+      - key: DRIFT_PARTICLES
+        value: "64"
+      - key: DRIFT_OUTPUT_INTERVAL_HOURS
+        value: "1"
+      - key: DRIFT_ENV_PAD_DEG
+        value: "0.75"
+      - key: DRIFT_QUALITY_MIN
+        value: "60"
+      - key: FAST_PROTOTYPE_MODE
+        value: "true"
+      - key: PIPELINE_TARGET_SECONDS
+        value: "60"
+      - key: AIS_SEARCH_RADIUS_KM
+        value: "20"
+      - key: AIS_TIME_PAD_HOURS
+        value: "6"
+      - key: TRACK_GAP_HOURS
+        value: "6"
+      - key: AIS_STALE_HOURS
+        value: "72"
+
+      # ---- jobs / cache / limits ----
+      - key: JOB_MAX_ATTEMPTS
+        value: "2"
+      - key: JOB_RETENTION_DAYS
+        value: "7"
+      - key: JOB_TIMEOUT_S
+        value: "900"
+      - key: ENV_CACHE_TTL_HOURS
+        value: "168"
+      - key: ENV_FRESH_HOURS
+        value: "72"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "240"

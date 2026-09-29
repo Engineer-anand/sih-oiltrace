@@ -1,0 +1,18 @@
+{
+  "model_version": "unet-oilspill-ppv1-001",
+  "weights_file": "unet_oilspill.pt",
+  "weights_sha256": "b3cd87d56f622c0dfd42fb3f256ce5decb1c477f6c85896366ac613c9934a223",
+  "weights_bytes": 17328411,
+  "architecture": {"family": "U-Net", "depth": 4, "base_filters": 32, "upsampling": "bilinear", "in_channels": 1, "out_channels": 1},
+  "preprocessing_version": "pp-v1",
+  "preprocessing_inference": "infer-minmax",
+  "preprocessing_training": "train-scale",
+  "parity_gap": "checkpoint trained with train-scale on SOS PNGs; inference runs infer-minmax on GRD scenes (documented, unresolved)",
+  "threshold": 0.5,
+  "dataset": "Refined Deep-SAR Oil Spill (SOS), Zenodo 15298010 (not present in repo; unverified locally)",
+  "training_date": "unknown",
+  "torch": "torch==2.5.1 (see backend/requirements-core.txt)",
+  "device": "cuda-if-available-else-cpu",
+  "metrics_status": "not-validated",
+  "metrics_note": "No labeled real-scene IoU/Dice/precision/recall measured. Use ml/validation_metrics.py on a labeled set before claiming accuracy."
+}

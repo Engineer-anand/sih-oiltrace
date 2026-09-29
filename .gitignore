@@ -1,0 +1,106 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+backend/venv/
+venv/
+ENV/
+env/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+.npm
+.yarn/
+*.tsbuildinfo
+
+# Data / runtime (never commit)
+data/
+backend/data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Model weights (large; fetch via release/LFS, not git)
+*.pt
+*.pth
+*.onnx
+
+# ============================================================
+# Secrets, Credentials & Environment (NEVER COMMIT)
+# ============================================================
+.env
+.env.*
+!.env*.example
+!.env*.sample
+!.env*.template
+*.env
+*.env.*
+*.secret
+*.secrets
+secrets.json
+credentials.json
+credential*.json
+client_secret*.json
+service_account*.json
+service-account*.json
+firebase-adminsdk*.json
+auth.json
+token.json
+tokens.json
+
+# Certificates, private keys & keystores
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.der
+*.keystore
+*.jks
+*.pub
+id_rsa*
+id_ecdsa*
+id_ed25519*
+
+# Cloud & API credentials
+.cdsapirc
+.copernicusmarine*
+.aws/
+.gcp/
+.azure/
+.netrc
+.npmrc
+.pypirc
+.htpasswd
+
+# Build / caches
+dist/
+build/
+.netlify/
+
+# Logs / reports / uploads
+*.log
+logs/
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Keep placeholders
+!**/.gitkeep

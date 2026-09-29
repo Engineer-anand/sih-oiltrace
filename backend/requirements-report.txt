@@ -1,0 +1,2 @@
+# OilTrace — OPTIONAL report/export dependencies (PDF report export).
+reportlab==4.2.5

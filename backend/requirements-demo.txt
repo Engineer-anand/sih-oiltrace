@@ -1,0 +1,52 @@
+# OilTrace — FREE-TIER DEMO dependencies (Render / Koyeb / HF Spaces).
+#
+# Deliberately EXCLUDES the live-physics stack. In APP_MODE=sih_demo the
+# pipeline routes to drift.run_scenario_backward_drift (pure numpy + pyproj)
+# and ais.providers.scenario.ScenarioFleetProvider (pure stdlib), so
+# OpenDrift / CMEMS / ERA5 / netCDF4 are never imported on the demo path.
+#
+# Also excluded (verified unused at runtime):
+#   geopandas      — never imported by backend/app
+#   torchvision    — never imported by backend/app
+#   psycopg2       — demo runs on SQLite; db.py falls back automatically
+#   geoalchemy2    — only needed for PostGIS; guarded by try/except in db_models
+#
+# Installing this set needs NO system packages (no libgdal-dev, no
+# libnetcdf-dev, no build-essential) because rasterio/shapely/pyproj ship
+# manylinux wheels. That is what makes a free-tier build possible.
+#
+# NOTE: torch is intentionally NOT listed here. Install it separately from
+# the CPU-only index, otherwise pip pulls the ~800 MB CUDA wheel:
+#     pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+#     pip install -r backend/requirements-demo.txt
+# (Dockerfile.demo does exactly this.)
+
+# --- Web framework ---
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.17
+pydantic==2.9.2
+
+# --- Database (SQLite for the demo; portable schema, TEXT geometry) ---
+SQLAlchemy==2.0.36
+
+# --- ML runtime (weights loaded from models/checkpoints/) ---
+numpy==2.1.3
+
+# --- Geospatial (raster/vector only, no drift physics) ---
+rasterio==1.4.2
+shapely==2.0.6
+pyproj==3.7.0
+affine==2.4.0
+
+# --- Image handling ---
+Pillow==11.0.0
+scikit-image==0.24.0
+
+# --- Utilities ---
+python-dotenv==1.0.1
+loguru==0.7.2
+httpx==0.27.2
+
+# --- PDF report export ---
+reportlab==4.2.5
